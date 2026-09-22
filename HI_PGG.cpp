@@ -465,7 +465,10 @@ int main(int argc, char** argv) {
                 for (int i = 1; i <= 101; i = i + 1)T.push_back(i);
                 T.push_back(1001);
                 T.push_back(10001);
-                for (int i = 1; i <= 10; i++)
+                cout << "输入Hypergraph范围【l-r】\n";
+                int left, right;
+                cin >> left >> right;
+                for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
                     // 当前输入文件夹
@@ -603,7 +606,10 @@ int main(int argc, char** argv) {
                 cout << "输入截至时间\n";
                 cin >> step_num;
                 init_step_num = step_num;
-                for (int i = 1; i <= 10; i++)
+                cout << "输入Hypergraph范围【l-r】\n";
+                int left, right;
+                cin >> left >> right;
+                for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
                     // 当前输入文件夹
@@ -661,6 +667,7 @@ int main(int argc, char** argv) {
                         {
                             r.clear();r.push_back(jay);
 							vector<double>fct;
+           
                             for (int i = 0; i <= step_num; i++)
                             {
 								fct.push_back(0);
@@ -724,7 +731,10 @@ int main(int argc, char** argv) {
                 cout << "输入截至时间init_step_num(step_num = init_step_num+5000)\n";
                 cin >> init_step_num;
                 step_num = init_step_num+5000;
-                for (int i = 1; i <= 10; i++)
+                cout << "输入Hypergraph范围【l-r】\n";
+				int left, right;
+                cin >> left >> right;
+                for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
                     // 当前输入文件夹
