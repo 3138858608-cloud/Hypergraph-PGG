@@ -277,7 +277,7 @@ int main(int argc, char** argv) {
         // ====================================================
         // 超图生成
         // ====================================================
-        for (int i = 1; i <= 10; i++)
+        for (int i = 1; i <= 20; i++)
         {
             string folder_path = params.cin_path + "/Hypergraph_" + to_string(i);
             filesystem::create_directories(filesystem::path(folder_path));
@@ -423,6 +423,9 @@ int main(int argc, char** argv) {
         }
         else
         {
+            cout << "输入Hypergraph范围【l-r】\n";
+            int left, right;
+            cin >> left >> right;
             // ====================================================
             // 创建结果根目录
             // ====================================================
@@ -431,9 +434,9 @@ int main(int argc, char** argv) {
             filesystem::create_directories(result_root);
             params.cout_path = result_root.string();
             // ====================================================
-            // 创建10个对应的结果文件夹
+            // 创建20个对应的结果文件夹
             // ====================================================
-            for (int i = 1; i <= 10; i++)
+            for (int i = left; i <= right; i++)
             {
                 filesystem::path result_folder =
                     result_root / ("Hypergraph_" + to_string(i));
@@ -455,7 +458,7 @@ int main(int argc, char** argv) {
             cin >> choice;
             if (choice == 1)
             {
-                
+          
                 cout << "输入协同因子(归一化)\n";
                 double jay;
                 cin >> jay;
@@ -465,9 +468,6 @@ int main(int argc, char** argv) {
                 for (int i = 1; i <= 101; i = i + 1)T.push_back(i);
                 T.push_back(1001);
                 T.push_back(10001);
-                cout << "输入Hypergraph范围【l-r】\n";
-                int left, right;
-                cin >> left >> right;
                 for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
@@ -731,9 +731,6 @@ int main(int argc, char** argv) {
                 cout << "输入截至时间init_step_num(step_num = init_step_num+5000)\n";
                 cin >> init_step_num;
                 step_num = init_step_num+5000;
-                cout << "输入Hypergraph范围【l-r】\n";
-				int left, right;
-                cin >> left >> right;
                 for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
