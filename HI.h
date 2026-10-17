@@ -23,6 +23,9 @@ namespace HypergraphLib {
         vector< vector<int> > Groups;//Hyperedge containing the node set
         vector<pair<int, double>>KNN;
         vector<pair<int, double>>RK;
+        vector<double>Dergee_Centralites;
+        vector<double>Sub_Centralites;
+        vector<double>Important_Centralites;
         //vector<double>Dergee_Centralites;
         //vector<double>Sub_Centralites;
         //vector<double>Important_Centralites;
@@ -104,7 +107,7 @@ namespace HypergraphLib {
 
         }
 
-        //重复节点检查
+        //重复节点,截断检查
         bool Check_duplicate_nodes()
         {
             for (int i = 0; i < L; i++)
@@ -118,63 +121,9 @@ namespace HypergraphLib {
                     }
                 }
             }
+            for (int i = 0; i < N; i++)if ((int)Groups[i].size() > 100)return 1;
             return false;
         }
-        //计算最大连通分量
-        /*
-        pair<int, vector<int>> largestConnectedComponentWithVertices(Mat& A)
-        {
-
-            vector<vector<int>>adj;
-            for (int i = 0; i < A.row; i++)
-            {
-                adj.push_back(vector<int>{});
-                for (int j = 0; j < A.col; j++)
-                {
-                    adj[i].push_back((int)A.val[i][j]);
-                }
-            }
-            vector<bool> visited(N, false);
-            int maxSize = 0;
-            vector<int> maxComponent;
-            auto dfs = [&](int start) -> vector<int> {
-                vector<int> component;
-                stack<int> st;
-                st.push(start);
-
-                while (!st.empty())
-                {
-                    int u = st.top();
-                    st.pop();
-
-                    if (!visited[u])
-                    {
-                        visited[u] = true;
-                        component.push_back(u);
-
-                        for (int v = 0; v < N; v++)
-                        {
-                            if (adj[u][v] == 1 && !visited[v])
-                            {
-                                st.push(v);
-                            }
-                        }
-                    }
-                }
-                return component;
-                };
-            for (int i = 0; i < N; i++) {
-                if (!visited[i]) {
-                    vector<int> component = dfs(i);
-                    if (component.size() > maxSize) {
-                        maxSize = (int)component.size();
-                        maxComponent = move(component);
-                    }
-                }
-            }
-            return { maxSize, maxComponent };
-        }
-        */
         //重连函数：用于随机重连超图结构
         void rewiring(int dv, int de)
         {
@@ -406,47 +355,10 @@ namespace HypergraphLib {
                 }
                 else
                     break; // No duplicates found, exit the loop
-
             }
             cout << "Map generation complete" << endl;
         }
     };
-    //超图矩阵计算
-    //Mat Incidence_matrix(Hypergraph B)
-    //{
-    //    /*
-    //    关联矩阵是一个大小为∣V∣×∣E∣ 的矩阵，它的第 i 行、第 j 列的元素 1(vi∈ej)/0（other）
-    //    */
-    //    Mat res(B.N, B.L);
-    //    for (int i = 0; i < B.N; i++)
-    //        for (auto& v : B.Groups[i])
-    //            res.val[i][v] = 1;
-    //    return res;
-    //}
-    //Mat Degree_diagonal_matrix(Hypergraph B)
-    //{
-    //    /*
-    //    超度对角矩阵是一个大小为∣V∣×∣V∣ 的矩阵，它的第 i 行、第 j 列的元素 节点超度(i==j)/0（other）
-    //    */
-    //    Mat res(B.N, B.N);
-    //    for (int i = 0; i < B.N; i++)
-    //    {
-    //        res.val[i][i] = 1.0 * B.Groups[i].size();
-    //    }
-    //    return res;
-    //}
-    //Mat Adjacency_matrix(Hypergraph B)
-    //{
-    //    /*
-    //    邻接矩阵A=I × IT −D
-    //    */
-    //    Mat res(B.N, B.N);
-    //    Mat I = Incidence_matrix(B);
-    //    Mat D = Degree_diagonal_matrix(B);
-    //    res = M_Multiplication(I, M_T(I));
-    //    res = M_Subtraction(res, D);
-    //    return res;
-    //}
     //计算指标
     double Hypergraph_assortativity(Hypergraph B)
     {
@@ -595,128 +507,74 @@ namespace HypergraphLib {
 
         return result;
     }
-    //vector<double>dergee_centralites(Hypergraph B)
-    //{
-    //    vector<double>res;
-    //    double sum = 0;
-    //    for (int i = 0; i < B.N; i++)
-    //    {
-    //        res.push_back(B.Groups[i].size() * (B.g - 1.0));
-    //        sum += res[i];
-    //    }
-    //    sum /= B.N;
-    //    for (int i = 0; i < B.N; i++)
-    //    {
-    //        res[i] /= sum;
-    //        //cout << i<<' '<<res[i] << '\n ';
-    //    }
-    //    //cout << endl;
-    //    return res;
-    //}
-    //vector<double>sub_centralites(Hypergraph B)
-    //{
-    //    vector<double> C(B.N, 0.0);
-    //    // =========================
-    //    // 1. 构造邻接矩阵 A
-    //    // =========================
-    //    Mat A = Adjacency_matrix(B);
-    //    int n = B.N;
-    //    // =========================
-    //    // 2. 转 Eigen Matrix
-    //    // =========================
-    //    Eigen::MatrixXd M(n, n);
-    //    for (int i = 0; i < n; i++)
-    //        for (int j = 0; j < n; j++)
-    //            M(i, j) = A.val[i][j];
-    //    // =========================
-    //    // 3. 特征分解
-    //    // =========================
-    //    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(M);
-    //    if (solver.info() != Eigen::Success)
-    //    {
-    //        std::cout << "Eigen decomposition failed!" << std::endl;
-    //        return C;
-    //    }
-    //    Eigen::VectorXd lambda = solver.eigenvalues();
-    //    Eigen::MatrixXd U = solver.eigenvectors();
-    //    // =========================
-    //    // 4. exp(λ)
-    //    // =========================
-    //    Eigen::VectorXd exp_lambda = lambda.array().exp();
-    //    // =========================
-    //    // 5. 计算 CSH
-    //    // =========================
-    //    for (int i = 0; i < n; i++)
-    //    {
-    //        double sum = 0.0;
-    //        for (int j = 0; j < n; j++)
-    //        {
-    //            double u = U(i, j);
-    //            sum += u * u * exp_lambda(j);
-    //        }
-    //        C[i] = sum;
-    //    }
-    //    double sum = 0;
-    //    for (int i = 0; i < n; i++)
-    //        sum += C[i];
-    //    sum /= n;
-    //    for (int i = 0; i < n; i++)
-    //    {
-    //        C[i] /= sum;
-    //        //cout << i << ' ' << C[i] << '\n ';
-    //    }
-    //    return C;
-    //}
-    //vector<double>important_centralites(Hypergraph B, int l)
-    //{
-    //    vector<double>CI;
-    //    vector<int>nodes_with_d;
-    //    for (int i = 0; i < B.N; i++)
-    //    {
-    //        int d = 0;
-    //        deque<int>p;
-    //        vector<bool>vis;
-    //        vector<int>dis;
-    //        for (int i = 0; i < B.N; i++)vis.push_back(0), dis.push_back(0);
-    //        p.push_back(i);
-    //        dis[i] = 0;
-    //        vis[i] = 1;
-    //        while (!p.empty())
-    //        {
-    //            int u = p.front();
-    //            p.pop_front();
-    //            set<int>neb_of_u;
-    //            for (int j = 0; j < B.Groups[u].size(); j++)
-    //                for (auto v : B.Hyperedges[B.Groups[u][j]])
-    //                    if (!vis[v])
-    //                        neb_of_u.insert(v);
-    //            set<int>::iterator it;
-    //            for (it = neb_of_u.begin(); it != neb_of_u.end(); it++)
-    //            {
-    //                int v = *it;
-    //                if (vis[v])continue;
-    //                dis[v] = dis[u] + 1;
-    //                vis[v] = 1;
-    //                p.push_back(v);
-    //            }
-    //        }
-    //        for (int j = 0; j < B.N; j++)
-    //            if (dis[j] == l)nodes_with_d.push_back(j);
-    //        double sum = 0;
-    //        CI.push_back(0);
-    //        for (auto j : nodes_with_d)
-    //            CI[i] = CI[i] + B.Groups[j].size() - 1;
-    //        CI[i] = CI[i] * (B.Groups[i].size() - 1);
-    //        nodes_with_d.clear();
-    //    }
-    //    double sum = 0;
-    //    for (int i = 0; i < B.N; i++)
-    //        sum += CI[i];
-    //    sum /= B.N;
-    //    for (int i = 0; i < B.N; i++)
-    //        CI[i] /= sum;
-    //    return CI;
-    //}
+    vector<double>dergee_centralites(Hypergraph B)
+    {
+        vector<double>res;
+        double sum = 0;
+        for (int i = 0; i < B.N; i++)
+        {
+            res.push_back(B.Groups[i].size() * (B.g - 1.0));
+            sum += res[i];
+        }
+        sum /= B.N;
+        for (int i = 0; i < B.N; i++)
+        {
+            res[i] /= sum;
+            //cout << i<<' '<<res[i] << '\n ';
+        }
+        //cout << endl;
+        return res;
+    }
+    vector<double>important_centralites(Hypergraph B, int l)
+    {
+        vector<double>CI;
+        vector<int>nodes_with_d;
+        for (int i = 0; i < B.N; i++)
+        {
+            int d = 0;
+            deque<int>p;
+            vector<bool>vis;
+            vector<int>dis;
+            for (int i = 0; i < B.N; i++)vis.push_back(0), dis.push_back(0);
+            p.push_back(i);
+            dis[i] = 0;
+            vis[i] = 1;
+            while (!p.empty())
+            {
+                int u = p.front();
+                p.pop_front();
+                set<int>neb_of_u;
+                for (int j = 0; j < B.Groups[u].size(); j++)
+                    for (auto v : B.Hyperedges[B.Groups[u][j]])
+                        if (!vis[v])
+                            neb_of_u.insert(v);
+                set<int>::iterator it;
+                for (it = neb_of_u.begin(); it != neb_of_u.end(); it++)
+                {
+                    int v = *it;
+                    if (vis[v])continue;
+                    dis[v] = dis[u] + 1;
+                    vis[v] = 1;
+                    p.push_back(v);
+                }
+            }
+            for (int j = 0; j < B.N; j++)
+                if (dis[j] == l)nodes_with_d.push_back(j);
+            double sum = 0;
+            CI.push_back(0);
+            for (auto j : nodes_with_d)
+                CI[i] = CI[i] + B.Groups[j].size() - 1;
+            CI[i] = CI[i] * (B.Groups[i].size() - 1);
+            nodes_with_d.clear();
+        }
+        double sum = 0;
+        for (int i = 0; i < B.N; i++)
+            sum += CI[i];
+        sum /= B.N;
+        for (int i = 0; i < B.N; i++)
+            CI[i] /= sum;
+        return CI;
+    }
     void Hypergraph_file_generation(int n, int G, double MU, string path)
     {
         // ================= 基本参数初始化 =================
@@ -731,7 +589,9 @@ namespace HypergraphLib {
         // ===================================================
         double p0 = 0;
         // 构造初始随机超图（无同配偏好）
-        Hypergraph hypergraph0(N, L, g,mu);
+		Hypergraph hypergraph1;
+        Hypergraph hypergraph0(N, L, g, mu);
+        
         // 计算该超图的同配系数（assortativity）
         double uk = Hypergraph_assortativity(hypergraph0);
         // 输出文件名（p=0 基准图）
@@ -756,8 +616,6 @@ namespace HypergraphLib {
             outfile << endl;
         }
         outfile.close();
-
-
         // ===================================================
         // ===================== 同配（p > 0）=================
         // ===================================================

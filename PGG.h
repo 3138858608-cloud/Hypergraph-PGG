@@ -158,45 +158,6 @@ namespace PGG_avpi {
             }
         }
     }
-    void show_node_status(int _, HypergraphLib::Hypergraph B)
-    {
-        if (_ == 3 || _ == 10 || _ == 100 || _ == 1000 || _ == 10000)
-        {
-            ofstream outfile;
-            outfile.open(to_string(_) + '_' + to_string(Hypergraph_assortativity(B)) + ".txt");
-            for (int i = 0; i < B.N; i++)
-                if (B.Groups[i].size() > 0)
-                    outfile << i << ' ' << Vectex_status_list[i] << endl;
-            outfile.close();
-        }
-        //int a = 0, a_c = 0;
-        //int b = 0, b_c = 0;
-        //int c = 0, c_c = 0;
-        //for (int i = 0;i < B.N;i++)
-        //{
-        //    //if (B.Groups[i].size() > 0)cout << i << ' ' << PGG_avpi::Vectex_status_list[i] << ' ' << B.Groups[i].size() << endl;
-
-        //    int di = B.Groups[i].size();
-        //    if (di > 0) {
-        //        if (di == 1)
-        //        {
-        //            a++;
-        //            if (PGG_avpi::Vectex_status_list[i])a_c++;
-        //        }
-        //        else if (di <= 30)
-        //        {
-        //            b++;
-        //            if (PGG_avpi::Vectex_status_list[i])b_c++;
-        //        }
-        //        else
-        //        {
-        //            c++;
-        //            if (PGG_avpi::Vectex_status_list[i])c_c++;
-        //        }
-        //    }
-        //}
-    }
-
     double run(HypergraphLib::Hypergraph B, double r, int step_num, int init_step_num, int x, int timescale)
     {
 
@@ -217,7 +178,6 @@ namespace PGG_avpi {
 
         for (int _ = 2; _ <= step_num; _++)
         {
-
             //update payoff
             for (int i = 0; i < B.N; i++)Vectex_payoff_list[i] = 0;
             for (int l = 0; l < B.L; l++)
@@ -241,14 +201,14 @@ namespace PGG_avpi {
             for (int i = 0; i < B.N; i++)
                 temp_Vectex_status_list[i] = Vectex_status_list[i];
             //timescale
-            //if (timescale > 0)
-            //    for (int i = 0; i < B.N; i++)
-            //    {
-            //        if (timescale == 1)p[i] = 1.0 / (1.0 + 1 * max(0.0, Vectex_payoff_list[i]));
-            //        else if (timescale == 2)p[i] = 1.0 / (1.0 + B.Dergee_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
-            //        else if (timescale == 3)p[i] = 1.0 / (1.0 + B.Sub_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
-            //        else if (timescale == 4 || timescale == 5 || timescale == 6)p[i] = 1.0 / (1.0 + B.Important_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
-            //    }
+            if (timescale > 0)
+                for (int i = 0; i < B.N; i++)
+                {
+                    if (timescale == 1)p[i] = 1.0 / (1.0 + 1 * max(0.0, Vectex_payoff_list[i]));
+                    else if (timescale == 2)p[i] = 1.0 / (1.0 + B.Dergee_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
+                    else if (timescale == 3)p[i] = 1.0 / (1.0 + B.Sub_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
+                    else if (timescale == 4 || timescale == 5 || timescale == 6)p[i] = 1.0 / (1.0 + B.Important_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
+                }
             if (x == 1) Unconditional_Imitation(r, B);
             if (x == 2) Fermi_rule(B);
             if (x == 3) Moran_rule(B);
@@ -257,14 +217,12 @@ namespace PGG_avpi {
             for (int i = 0; i < B.N; i++)
                 if (!B.Groups[i].empty())
                     Status_list[_] += Vectex_status_list[i];
-            //cout << _ << ' ' << Status_list[_] << endl;
         }
         for (int i = init_step_num; i <= step_num; i++)
         {
             fc += Status_list[i];
         }
         fc /= (1.0 * ((B.N - B.empty_nodes_num) * (step_num - init_step_num + 1)));
-
         return fc;
     }
     void clear()

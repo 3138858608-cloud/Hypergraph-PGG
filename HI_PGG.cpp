@@ -27,10 +27,8 @@ int timescale = 0; // 时间尺度选择：0=无时间尺度，1=有时间尺度
 vector<double> Fc;
 vector<double> r;
 
-
 void Generate_Hypergraphfiles(int N0,int g0,double mu0,string cin_path0)
 {
-    //HypergraphLib::Hypergraph_file_generation(1000, 4, 0.25, cin_path);
     HypergraphLib::Hypergraph_file_generation(N0, g0, mu0, cin_path0);
     HypergraphLib::Hypergraph hypergraph;
     hypergraph.clear();
@@ -45,76 +43,6 @@ void Generate_Hypergraphfiles(int N0,int g0,double mu0,string cin_path0)
         hypergraph.clear();
     }
 }
-//void run_by_files()
-//{
-//    //使用前请通过Generate_Hypergraphfiles()生成超图文件
-//    HypergraphLib::Hypergraph hypergraph;
-//    hypergraph.clear();
-//    filesystem::path dir_path(cin_path);
-//    ofstream outfile;
-//    outfile.open(cout_path);
-//    outfile << cin_path << endl;
-//    for (const auto& entry : filesystem::directory_iterator(dir_path))
-//    {
-//        if (entry.is_regular_file() && entry.path().extension() == ".txt")
-//        {
-//            cout << "Processing file: " << entry.path() << endl;
-//            hypergraph = HypergraphLib::create_graph_from_file(entry);
-//            hypergraph.KNN = HypergraphLib::knn(hypergraph);
-//            double p = HypergraphLib::Hypergraph_assortativity(hypergraph);
-//            string fname = entry.path().filename().string();
-//            outfile << fname << endl;
-//            outfile << p << endl;
-//            // 计算超图指标
-//            //hypergraph.KNN = HypergraphLib::knn(hypergraph);
-//            //hypergraph.RK = HypergraphLib::rk(hypergraph);
-//            for (timescale = 0; timescale <= 0; timescale++)
-//            {
-//                //if (timescale == 2)hypergraph.Dergee_Centralites = HypergraphLib::dergee_centralites(hypergraph);
-//                //if (timescale == 3)hypergraph.Sub_Centralites = HypergraphLib::sub_centralites(hypergraph);
-//                //if (timescale == 4)hypergraph.Important_Centralites = HypergraphLib::important_centralites(hypergraph, 1);
-//                //if (timescale == 5)hypergraph.Important_Centralites = HypergraphLib::important_centralites(hypergraph, 2);
-//                //if (timescale == 6)hypergraph.Important_Centralites = HypergraphLib::important_centralites(hypergraph, 3);
-//                r.clear();
-//                Fc.clear();
-//                // ================= 构造 r 参数扫描序列 =================
-//                for (double i = 0.8; i <= 0.7; i += 0.0125)
-//                {
-//                    r.push_back(i);
-//                    Fc.push_back(0);
-//                }
-//                // ================= 重复实验 =================
-//                for (int ii = 0; ii < r.size(); ii++)
-//                {
-//                    // 遍历所有 r 值，逐个进行仿真
-//                    for (int i = 0; i < retime; i++)
-//                    {
-//                        // 运行演化过程
-//                        PGG_avpi::run(hypergraph, r[ii], step_num, init_step_num, y, timescale);
-//                        // 输出当前 r 对应的合作水平 fc
-//                        cout << r[ii] << ' ' << PGG_avpi::fc << endl;
-//                        // 累加结果（用于平均）
-//                        Fc[ii] += PGG_avpi::fc;
-//                        // 清理本轮仿真状态
-//                        PGG_avpi::clear();
-//                    }
-//                }
-//                // ================= 结果归一化 + 输出 =================
-//                for (int ii = 0; ii < Fc.size(); ii++)
-//                {
-//                    // 计算平均合作水平
-//                    Fc[ii] /= (1.0 * retime);
-//                    cout << r[ii] << ' ' << Fc[ii] << endl;
-//                    outfile << r[ii] << ' ' << Fc[ii] << endl;
-//                }
-//            }
-//            // 清理当前超图
-//            hypergraph.clear();
-//        }
-//    }
-//    outfile.close();
-//}
-
 // ============================================================
 // 参数结构体
 // ============================================================
@@ -147,14 +75,14 @@ struct SimulationParameters
 void InputHypergraphParameters(SimulationParameters& params)
 {
     cout << endl;
-    cout << "========== 超图生成参数 ==========" << endl;
-    cout << "输入节点数 N: ";
+    cout << "========== Hypergraph Generation Parameters ==========" << endl;
+    cout << "Input Number of Nodes N: ";
     cin >> params.N;
-    cout << "输入超边阶数 g: ";
+    cout << "Input Hyperedge Order g: ";
     cin >> params.g;
-    cout << "输入度分布参数 mu: ";
+    cout << "Input Degree Distribution Parameter mu: ";
     cin >> params.mu;
-    cout << "输入超图存储地址: ";
+    cout << "Input Hypergraph Storage Path(cin_path): ";
     cin >> params.cin_path;
 }
 
@@ -163,15 +91,10 @@ void InputHypergraphParameters(SimulationParameters& params)
 // ============================================================
 void InputSimulationParameters(SimulationParameters& params)
 {
-    cout << endl;
-    cout << "==============================================" << endl;
-    cout << "                 PGG仿真" << endl;
-    cout << "==============================================" << endl;
-
     // --------------------------------------------------------
     // 输入超图地址
     // --------------------------------------------------------
-    cout << "输入超图地址: ";
+    cout << "Enter Hypergraph Path: ";
     cin >> params.cin_path;
 
 
@@ -181,11 +104,11 @@ void InputSimulationParameters(SimulationParameters& params)
     int mode;
 
     cout << endl;
-    cout << "选择运行内容：" << endl;
-    cout << "1. 超图指标" << endl;
-    cout << "2. PGG仿真(使用1生成的超图)" << endl;
+    cout << "Select Run Content:" << endl;
+    cout << "1. Hypergraph Metrics Analysis (Deriving Degree Distribution, KNN, and Clustering Coefficient)" << endl;
+    cout << "2. PGG Simulation (Using the hypergraph generated by option Hypergraph Generation)" << endl;
 
-    cout << "输入选项 (1/2): ";
+    cout << "Enter Option (1/2): ";
     cin >> mode;
 
 
@@ -194,7 +117,7 @@ void InputSimulationParameters(SimulationParameters& params)
     // --------------------------------------------------------
     while (mode != 1 && mode != 2)
     {
-        cout << "输入错误，请重新输入 (1/2): ";
+        cout << "Invalid input. Please enter (1/2): ";
         cin >> mode;
     }
 
@@ -234,11 +157,11 @@ int main(int argc, char** argv) {
     cout << "What do you want?" << endl;
     cout << endl;
 
-    cout << "1. 超图生成" << endl;
-    cout << "2. PGG 仿真" << endl;
+    cout << "1. Hypergraph Generation" << endl;
+    cout << "2. PGG Simulation" << endl;
 
     cout << endl;
-    cout << "输入选项 (1/2): ";
+    cout << "Input Options (1/2): ";
     cin >> mode;
     // ========================================================
     // 模式 1：超图生成
@@ -247,16 +170,15 @@ int main(int argc, char** argv) {
     {
         cout << endl;
         cout << "==============================================" << endl;
-        cout << "                 1. 超图生成" << endl;
+        cout << "                 1. Hypergraph Generation" << endl;
         cout << "==============================================" << endl;
-        cout << "会在cin_path中建立20个文件夹，每个文件夹里有一个超图以及这个超图同配、异配操作后的超图\n";
+        cout << "It will create 20 folders in `cin_path`, each containing a hypergraph as well as the hypergraphs resulting from its homologous and heterologous operations.\n";
         // 输入超图参数
         InputHypergraphParameters(params);
 
-
         // 参数确认
         cout << endl;
-        cout << "========== 参数确认 ==========" << endl;
+        cout << "========== Parameter Confirmation ==========" << endl;
 
         cout << "N  = " << params.N << endl;
         cout << "g  = " << params.g << endl;
@@ -265,15 +187,15 @@ int main(int argc, char** argv) {
         // 开始生成
         char choice;
         cout << endl;
-        cout << "是否开始生成超图？(y/n): ";
+        cout << "Should we start generating the hypergraph?？(y/n): ";
         cin >> choice;
         if (choice != 'y' && choice != 'Y')
         {
-            cout << "已取消。" << endl;
+            cout << "Canceled。" << endl;
             return 0;
         }
         cout << endl;
-        cout << "生成超图..." << endl;
+        cout << "Generating hypergraph..." << endl;
         // ====================================================
         // 超图生成
         // ====================================================
@@ -283,7 +205,9 @@ int main(int argc, char** argv) {
             filesystem::create_directories(filesystem::path(folder_path));
             Generate_Hypergraphfiles(params.N, params.g, params.mu, folder_path);
         }
-        cout << "超图生成完成。" << endl;
+        cout << "Hypergraph generation completed." << endl;
+        cout << "The first row contains the matching coefficients, followed by the set of hyperedges for each one.\n";
+        cout << "-0.0265179\n1 103 408 627 890\n1 32 74 328 490\n1 128 147 177 974\n1 78 81 565 788\n.....\n";
         return 0;
     }
     // ========================================================
@@ -293,8 +217,9 @@ int main(int argc, char** argv) {
     {
         cout << endl;
         cout << "==============================================" << endl;
-        cout << "                  2. PGG 仿真" << endl;
+        cout << "                  2. PGG Simulation" << endl;
         cout << "==============================================" << endl;
+
         // 输入仿真参数
         InputSimulationParameters(params);
         if (params.x == 1)
@@ -308,29 +233,27 @@ int main(int argc, char** argv) {
             params.cout_path = result_root.string();
 
             // ====================================================
-            // 创建10个对应的结果文件夹
+            // 创建对应的结果文件夹
             // ====================================================
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= 20; i++)
             {
                 filesystem::path result_folder =
                     result_root / ("Hypergraph_" + to_string(i));
 
                 filesystem::create_directories(result_folder);
 
-                cout << "创建结果目录: "
+                cout << "Creating result directory: "
                     << result_folder << endl;
             }
 
             cout << endl;
-            cout << "超图指标结果目录创建完成。" << endl;
-
+            cout << "Hypergraph indicator result directories created." << endl;
             // ====================================================
             // 开始计算超图指标
             // ====================================================
             cout << endl;
-            cout << "超图指标计算。。。" << endl;
-
-            for (int i = 1; i <= 10; i++)
+            cout << "Calculating hypergraph indicators..." << endl;
+            for (int i = 1; i <= 20; i++)
             {
                 // ------------------------------------------------
                 // 当前输入文件夹
@@ -346,16 +269,16 @@ int main(int argc, char** argv) {
                     / ("Hypergraph_" + to_string(i));
                 cout << endl;
                 cout << "==============================================" << endl;
-                cout << "处理 Hypergraph_" << i << endl;
-                cout << "输入目录: " << folder_cin_path << endl;
-                cout << "输出目录: " << folder_cout_path << endl;
+                cout << "Processing Hypergraph_" << i << endl;
+                cout << "Input Directory: " << folder_cin_path << endl;
+                cout << "Output Directory: " << folder_cout_path << endl;
                 cout << "==============================================" << endl;
                 // ------------------------------------------------
                 // 检查输入目录
                 // ------------------------------------------------
                 if (!filesystem::exists(folder_cin_path))
                 {
-                    cout << "输入目录不存在，跳过。" << endl;
+                    cout << "Input directory does not exist, skipping." << endl;
                     continue;
                 }
 
@@ -386,6 +309,12 @@ int main(int argc, char** argv) {
                     // ====================================================
                     // 2. 计算超图指标
                     // ====================================================
+                    map<int, int>num_k;
+					for (int i = 0; i < hypergraph.N; i++)
+					{
+						int k = (int)hypergraph.Groups[i].size();
+						num_k[k]++;
+					}
                     hypergraph.KNN = HypergraphLib::knn(hypergraph);
                     hypergraph.RK = HypergraphLib::rk(hypergraph);
                     // ====================================================
@@ -404,26 +333,26 @@ int main(int argc, char** argv) {
                     ofstream fout(output_file);
                     for (int i = 0; i < hypergraph.KNN.size(); i++)
                     {
-                        fout << hypergraph.KNN[i].first << ' ' << hypergraph.KNN[i].second << ' ' << hypergraph.RK[i].second << endl;
-                        cout << hypergraph.KNN[i].first << ' ' << hypergraph.KNN[i].second << ' ' << hypergraph.RK[i].second << endl;
+                        fout << hypergraph.KNN[i].first << ' '<<num_k[hypergraph.KNN[i].first] << ' ' << hypergraph.KNN[i].second << ' ' << hypergraph.RK[i].second << endl;
+                        //cout << hypergraph.KNN[i].first << ' ' << hypergraph.KNN[i].second << ' ' << hypergraph.RK[i].second << endl;
                     }
                     fout.close();
-                    cout << "指标输出完成: " << output_file << endl;
+                    cout << "Indicator output completed: " << output_file << endl;
                     // ====================================================
                     // 5. 清空当前超图
                     // ====================================================
                     hypergraph.clear();
                 }
             }
-
             cout << endl;
             cout << "==============================================" << endl;
-            cout << "所有超图指标计算完成。" << endl;
+            cout << "All Hypergraph metrics have been calculated。" << endl;
             cout << "==============================================" << endl;
+            cout << "Each line represents degree k, the number of nodes with degree k, KNN, and rk" << endl;
         }
         else
         {
-            cout << "输入Hypergraph范围【l-r】\n";
+            cout << "Enter the Hypergraph range [l-r]\n";
             int left, right;
             cin >> left >> right;
             // ====================================================
@@ -434,35 +363,34 @@ int main(int argc, char** argv) {
             filesystem::create_directories(result_root);
             params.cout_path = result_root.string();
             // ====================================================
-            // 创建20个对应的结果文件夹
+            // 创建对应的结果文件夹
             // ====================================================
             for (int i = left; i <= right; i++)
             {
                 filesystem::path result_folder =
                     result_root / ("Hypergraph_" + to_string(i));
                 filesystem::create_directories(result_folder);
-                cout << "创建结果目录: "
+                cout << "Creating result directory: "
                     << result_folder << endl;
             }
             cout << endl;
-            cout << "超图指标结果目录创建完成。" << endl;
+            cout << "Hypergraph indicator result directories created." << endl;
             // ====================================================
             // 选择仿真结果内容
             // ====================================================
             cout << endl;
-            cout << "选择横坐标" << endl;
-            cout << "1.超度(不同时刻下,合作频率，收益和度之间的关系，记录1~100，1000，10000)" << endl;
-            cout << "2.时间（不同时刻下,合作频率，合作者收益，合作者超度和时间之间的关系，记录1~100000）" << endl;
-            cout << "3.协同因子" << endl;
+            cout << "Select X-axis" << endl;
+            cout << "1. Hyperdegree (Relationship between cooperation frequency, payoff, and hyperdegree at different time steps, recording 1~100, 1000, 10000)" << endl;
+            cout << "2. Time (Relationship between cooperation frequency, cooperator payoff, cooperator hyperdegree, and time at different time steps, recording 1~100000)" << endl;
+            cout << "3. Coordination Factor" << endl;
             int choice;
             cin >> choice;
             if (choice == 1)
             {
-          
-                cout << "输入协同因子(归一化)\n";
+                cout << "Input Co-factors r (Normalized)\n";
                 double jay;
                 cin >> jay;
-                cout << "输入重复次数\n";
+                cout << "Input number of repetitions\n";
                 cin >> retime;
                 vector<int>T;
                 for (int i = 1; i <= 101; i = i + 1)T.push_back(i);
@@ -484,16 +412,16 @@ int main(int argc, char** argv) {
                         / ("Hypergraph_" + to_string(i));
                     cout << endl;
                     cout << "==============================================" << endl;
-                    cout << "处理 Hypergraph_" << i << endl;
-                    cout << "输入目录: " << folder_cin_path << endl;
-                    cout << "输出目录: " << folder_cout_path << endl;
+                    cout << "Processing Hypergraph_" << i << endl;
+                    cout << "Input directory: " << folder_cin_path << endl;
+                    cout << "Output directory: " << folder_cout_path << endl;
                     cout << "==============================================" << endl;
                     // ------------------------------------------------
                     // 检查输入目录
                     // ------------------------------------------------
                     if (!filesystem::exists(folder_cin_path))
                     {
-                        cout << "输入目录不存在，跳过。" << endl;
+                        cout << "Input directory does not exist, skipping." << endl;
                         continue;
                     }
                     // ------------------------------------------------
@@ -538,7 +466,7 @@ int main(int argc, char** argv) {
                             map<double, double>numk;
                             for (int i = 0; i < hypergraph.N; i++)
                             {
-                                double k = hypergraph.Groups[i].size();
+                                double k = (double)hypergraph.Groups[i].size();
                                 fck[k] = 0;
                                 pik[k] = 0;
                                 numk[k] = 0;
@@ -554,7 +482,7 @@ int main(int argc, char** argv) {
                                     PGG_avpi::run(hypergraph, r[ii], step_num, init_step_num, y, timescale);
                                     for (int j = 0; j < hypergraph.N; j++)
                                     {
-                                        double k = hypergraph.Groups[j].size();
+                                        double k = (double)hypergraph.Groups[j].size();
                                         fck[k] += PGG_avpi::Vectex_status_list[j];
                                         pik[k] += PGG_avpi::Vectex_payoff_list[j];
                                         numk[k] += 1;
@@ -594,21 +522,20 @@ int main(int argc, char** argv) {
                         hypergraph.clear();
                     }
                 }
+                cout << "Each row represents degree k, the collaboration frequency, and the payoff for nodes with degree k.\n";
             }
             else if (choice == 2)
             {
                 
-                cout << "输入协同因子(归一化)\n";
+                cout << "Input Co-factors r (Normalized)\n";
                 double jay;
                 cin >> jay;
-                cout << "输入重复次数\n";
+                cout << "Input number of repetitions\n";
                 cin >> retime;
-                cout << "输入截至时间\n";
+                cout << "Input cutoff time\n";
                 cin >> step_num;
                 init_step_num = step_num;
-                cout << "输入Hypergraph范围【l-r】\n";
-                int left, right;
-                cin >> left >> right;
+      
                 for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
@@ -625,16 +552,16 @@ int main(int argc, char** argv) {
                         / ("Hypergraph_" + to_string(i));
                     cout << endl;
                     cout << "==============================================" << endl;
-                    cout << "处理 Hypergraph_" << i << endl;
-                    cout << "输入目录: " << folder_cin_path << endl;
-                    cout << "输出目录: " << folder_cout_path << endl;
+                    cout << "Processing Hypergraph_" << i << endl;
+                    cout << "Input directory: " << folder_cin_path << endl;
+                    cout << "Output directory: " << folder_cout_path << endl;
                     cout << "==============================================" << endl;
                     // ------------------------------------------------
                     // 检查输入目录
                     // ------------------------------------------------
                     if (!filesystem::exists(folder_cin_path))
                     {
-                        cout << "输入目录不存在，跳过。" << endl;
+                        cout << "Input directory does not exist, skipping." << endl;
                         continue;
                     }
                     // ------------------------------------------------
@@ -720,17 +647,18 @@ int main(int argc, char** argv) {
                         hypergraph.clear();
                     }
                 }
+                cout << "Each row represents the time t and the collaboration frequency at time t.\n";
             }
             else if (choice == 3)
             {
-                cout << "输入协同因子(归一化)\nstart end step\n";
+                cout << "Input Co-factors r (Normalized)\nstart end step\n";
                 double start,end,st;
                 cin >> start>>end>>st;
-                cout << "输入重复次数\n";
+                cout << "Input number of repetitions\n";
                 cin >> retime;
-                cout << "输入截至时间init_step_num(step_num = init_step_num+5000)\n";
+                cout << "Input cutoff time init_step_num(step_num = init_step_num+10000)\n";
                 cin >> init_step_num;
-                step_num = init_step_num+5000;
+                step_num = init_step_num+10000;
                 for (int i = left; i <= right; i++)
                 {
                     // ------------------------------------------------
@@ -747,16 +675,16 @@ int main(int argc, char** argv) {
                         / ("Hypergraph_" + to_string(i));
                     cout << endl;
                     cout << "==============================================" << endl;
-                    cout << "处理 Hypergraph_" << i << endl;
-                    cout << "输入目录: " << folder_cin_path << endl;
-                    cout << "输出目录: " << folder_cout_path << endl;
+                    cout << "Processing Hypergraph_" << i << endl;
+                    cout << "Input directory: " << folder_cin_path << endl;
+                    cout << "Output directory: " << folder_cout_path << endl;
                     cout << "==============================================" << endl;
                     // ------------------------------------------------
                     // 检查输入目录
                     // ------------------------------------------------
                     if (!filesystem::exists(folder_cin_path))
                     {
-                        cout << "输入目录不存在，跳过。" << endl;
+                        cout << "Input directory does not exist, skipping." << endl;
                         continue;
                     }
                     // ------------------------------------------------
@@ -787,7 +715,8 @@ int main(int argc, char** argv) {
                         // 2. 仿真
                         // ====================================================
                         {
-                            r.clear(); 
+                            r.clear();
+                            Fc.clear();
                             for(double i=start;i<=end;i+=st)
                             {
                                 r.push_back(i);
@@ -815,7 +744,7 @@ int main(int argc, char** argv) {
 
                             filesystem::path output_file =
                                 folder_cout_path /
-                                (input_filename + "_Simulation3.txt");
+                                (input_filename + "_Simulation3_R.txt");
 
                             // ====================================================
                             // 4. 输出指标
@@ -833,14 +762,14 @@ int main(int argc, char** argv) {
                         hypergraph.clear();
                     }
                 }
+                cout << "Each row represents the synergy factor and the frequency of collaboration.\n";
             }
         }
     }
     else
     {
         cout << endl;
-        cout << "输入错误！请输入 1 或 2。" << endl;
-
+        cout << "Input error! Please enter 1 or 2." << endl;
         return 1;
     }
 }
