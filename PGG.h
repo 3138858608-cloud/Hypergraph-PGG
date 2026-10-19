@@ -7,6 +7,34 @@
 #include"rand.h"
 #include <algorithm>
 using namespace std;
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+void showProgress(size_t current, size_t total)
+{
+    if (total == 0) return;
+
+    const int width = 50;
+    double progress = static_cast<double>(current) / total;
+    progress = min(progress, 1.0);
+
+    int filled = static_cast<int>(progress * width);
+
+    cout << "\r[";
+
+    for (int i = 0; i < width; ++i)
+        cout << (i < filled ? '#' : '-');
+
+    cout << "] "
+        << static_cast<int>(progress * 100) << "%"
+        << " (" << current << "/" << total << ")"
+        << flush;
+
+    if (current >= total)
+        cout << '\n';
+}
+
 namespace PGG_avpi {
 
     int c = 1;//cost
@@ -87,7 +115,6 @@ namespace PGG_avpi {
     {
         for (int u = 0; u < B.N; u++)
         {
-
             //B.Groups[u]
             //random choose hyperedge
             /*   1    1
@@ -207,7 +234,7 @@ namespace PGG_avpi {
                     if (timescale == 1)p[i] = 1.0 / (1.0 + 1 * max(0.0, Vectex_payoff_list[i]));
                     else if (timescale == 2)p[i] = 1.0 / (1.0 + B.Dergee_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
                     else if (timescale == 3)p[i] = 1.0 / (1.0 + B.Sub_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
-                    else if (timescale == 4 || timescale == 5 || timescale == 6)p[i] = 1.0 / (1.0 + B.Important_Centralites[i] * max(0.0, Vectex_payoff_list[i]));
+                    else if (timescale == 4)p[i] = 1.0 / (1.0 + B.important_centralites[i] * max(0.0, Vectex_payoff_list[i]));
                 }
             if (x == 1) Unconditional_Imitation(r, B);
             if (x == 2) Fermi_rule(B);
@@ -217,6 +244,7 @@ namespace PGG_avpi {
             for (int i = 0; i < B.N; i++)
                 if (!B.Groups[i].empty())
                     Status_list[_] += Vectex_status_list[i];
+            showProgress(_, step_num);
         }
         for (int i = init_step_num; i <= step_num; i++)
         {

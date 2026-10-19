@@ -17,6 +17,7 @@ namespace HypergraphLib {
         int g;// rank of the hyperedge
         int L;//size of hyperedge
         double mu;
+		double p;
         int empty_nodes_num = 0;
         vector<int> nodes;//nodes set
         vector< vector<int> > Hyperedges; //Hyperedge set
@@ -25,7 +26,7 @@ namespace HypergraphLib {
         vector<pair<int, double>>RK;
         vector<double>Dergee_Centralites;
         vector<double>Sub_Centralites;
-        vector<double>Important_Centralites;
+        vector<double>important_centralites;
         //vector<double>Dergee_Centralites;
         //vector<double>Sub_Centralites;
         //vector<double>Important_Centralites;
@@ -736,11 +737,13 @@ namespace HypergraphLib {
             mu_file = std::stod(m[3].str());
             p_file = std::stod(m[4].str());
             std::cout << fileadd << "  -> N=" << N_file << " g=" << g_file << " mu=" << mu_file << " p=-" << p_file << '\n';
+			p_file = -p_file; // Correct the sign for p
         }
         hypergraph.N = N_file;//Number of nodes
         hypergraph.g = g_file;// rank of the hyperedge
         hypergraph.L = (int)(hypergraph.N * 1.0 * log(hypergraph.N)) / hypergraph.g;//size of hyperedge
         hypergraph.mu = mu_file;
+		hypergraph.p = p_file;
         for (int i = 0; i < hypergraph.N; i++)
             hypergraph.nodes.push_back(i), hypergraph.Groups.push_back(vector<int>());
         for (int i = 0; i < hypergraph.L; i++)
