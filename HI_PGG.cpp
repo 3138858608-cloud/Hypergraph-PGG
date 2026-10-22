@@ -1501,6 +1501,7 @@ int main(int argc, char** argv) {
                 for (int re = 1; re <= retime; re++)
                 {
                     PGG_avpi::run(hypergraph, jay, step_num, init_step_num, y, 0,1, params.cin_path,i,re);
+					PGG_avpi::clear();
                 }
                 // 清空当前超图
                 hypergraph.clear();

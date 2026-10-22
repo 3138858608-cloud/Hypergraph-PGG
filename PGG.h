@@ -385,7 +385,7 @@ namespace PGG_avpi {
                 InitClusterAnalysis(cin_path, r, B.p, graph_id, run_id);
         for (int _ = 2; _ <= step_num; _++)
         {
-            if (enable_cluster && _ <= 1000)
+            if (enable_cluster)
             {
                 AnalyzeCooperativeClusters(_, B);
             }
