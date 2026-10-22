@@ -65,10 +65,9 @@ struct SimulationParameters
     int init_step_num = 15000;
     int retime = 1;
     double c = 1.0;
-    int update_rule = 1;
+    int update_rule = y;
     string cout_path;
 };
-
 // ============================================================
 // 输入超图生成参数
 // ============================================================
@@ -172,7 +171,6 @@ void InputSimulationWithTimeScaleParameters(SimulationParameters& params)
         params.x = 1;
         cout << endl;
     }
-
     // --------------------------------------------------------
     // PGG仿真
     // --------------------------------------------------------
@@ -194,16 +192,15 @@ int main(int argc, char** argv) {
     cout << "==============================================" << endl;
     cout << "        Hypergraph Public Goods Game" << endl;
     cout << "==============================================" << endl;
-
     cout << endl;
     cout << "What do you want?" << endl;
     cout << endl;
-
     cout << "1. Hypergraph Generation" << endl;
     cout << "2. PGG Simulation" << endl;
-	cout << "3. PGG Simulation with Time Scale: 0=No Time Scale, 1=Time Scale(1), 2=Time Scale(Node Degree Centrality), 3=Time Scale(Node Subhypergraph Centrality), 4=Time Scale(Node Collective Influence)" << endl;
+    cout << "3. PGG Simulation with Time Scale" << endl;
+    cout << "4. Cooperative Cluster Analysis" << endl;
     cout << endl;
-    cout << "Input Options (1/2/3): ";
+    cout << "Input Options (1/2/3/4): ";
     cin >> mode;
     // ========================================================
     // 模式 1：超图生成
@@ -425,15 +422,14 @@ int main(int argc, char** argv) {
                     << result_folder << endl;
             }
             cout << endl;
-            cout << "Hypergraph indicator result directories created." << endl;
+            cout << "Hypergraph simulation result directories created." << endl;
             // ====================================================
             // 选择仿真结果内容
             // ====================================================
             cout << endl;
-            cout << "Select X-axis" << endl;
-            cout << "1. Hyperdegree (Relationship between cooperation frequency, payoff, and hyperdegree at different time steps, recording 1~100, 1000, 10000)" << endl;
-            cout << "2. Time (Relationship between cooperation frequency, cooperator payoff, cooperator hyperdegree, and time at different time steps, recording 1~100000)" << endl;
-            cout << "3. Coordination Factor" << endl;
+            cout << "1. Relationship between cooperation frequency, payoff, and hyperdegree at different time steps, recording 1~100, 1000, 10000" << endl;
+            cout << "2. Relationship between cooperation frequency, cooperator payoff, cooperator hyperdegree, and time at different time steps, recording 1~100000" << endl;
+            cout << "3. Relationship between coordination factor and cooperation frequency" << endl;
             int choice;
             cin >> choice;
             if (choice == 1)
@@ -825,7 +821,7 @@ int main(int argc, char** argv) {
                 }
                 cout << "Each row represents the synergy factor and the frequency of collaboration.\n";
             }
-        }
+        }   
     }
     // ========================================================
     // 模式 2：PGG TS仿真
@@ -1257,7 +1253,6 @@ int main(int argc, char** argv) {
                                     // 清理本轮仿真状态
                                     PGG_avpi::clear();
                                 }
-
                             }
                             // ====================================================
                             // 3. 创建输出文件名
@@ -1413,10 +1408,114 @@ int main(int argc, char** argv) {
             }
             }
     }
+    // ========================================================
+    // 模式 4：PGG 仿真 + 合作簇分析
+    // ========================================================
+    else if (mode == 4)
+    {
+        cout << endl;
+        cout << "==============================================" << endl;
+        cout << "         4.Cooperative Cluster" << endl;
+        cout << "==============================================" << endl;
+        // ------------------------------------------------
+        // 输入超图路径
+        // ------------------------------------------------
+        cout << "Enter Hypergraph Path (cin_path): ";
+        cin >> params.cin_path;
+        // ------------------------------------------------
+        // 目标 p 值序列
+        // ------------------------------------------------
+        cout << "Target p - sequence (-1 is the stop symbol): ";
+        vector<double> p_values;
+        while (1)
+        {
+            double p;
+            cin >> p;
+            if (p == -1) break;
+            p_values.push_back(p);
+        }
+        // ------------------------------------------------
+        // 只输入一个协同因子 r
+        // ------------------------------------------------
+        cout << "Input Co-factor r (Normalized): ";
+        double jay;
+        cin >> jay;
+        // ------------------------------------------------
+        // 重复次数与时间参数
+        // ------------------------------------------------
+        cout << "Input number of repetitions: ";
+        cin >> retime;
+
+        cout << "Input cutoff time init_step_num (step_num = init_step_num + 10000): ";
+        cin >> init_step_num;
+        step_num = init_step_num + 10000;
+
+        // ------------------------------------------------
+        // 创建 CR 根目录
+        // ------------------------------------------------
+        filesystem::path cr_root = filesystem::path(params.cin_path) / "ClusterAnalysisResults";
+        filesystem::create_directories(cr_root);
+        cout << endl;
+        cout << "All cluster analysis results will be saved under: " << cr_root << endl;
+
+        // ------------------------------------------------
+        // 固定遍历 1~20 个超图
+        // ------------------------------------------------
+        for (int i = 1; i <= 20; i++)
+        {
+            filesystem::path folder_cin_path =
+                filesystem::path(params.cin_path) / ("Hypergraph_" + to_string(i));
+            cout << endl;
+            cout << "==============================================" << endl;
+            cout << "Processing Hypergraph_" << i << endl;
+            cout << "Input directory: " << folder_cin_path << endl;
+            cout << "==============================================" << endl;
+
+            if (!filesystem::exists(folder_cin_path))
+            {
+                cout << "Input directory does not exist, skipping." << endl;
+                continue;
+            }
+
+            // 遍历该文件夹下的所有 .txt
+            for (const auto& entry : filesystem::directory_iterator(folder_cin_path))
+            {
+                if (!entry.is_regular_file()) continue;
+                if (entry.path().extension() != ".txt") continue;
+
+                cout << endl;
+                cout << "Processing file: " << entry.path() << endl;
+
+                // 1. 读取超图
+                HypergraphLib::Hypergraph hypergraph =
+                    HypergraphLib::create_graph_from_file(entry);
+
+                // 过滤不在目标 p 序列中的超图
+                if (find(p_values.begin(), p_values.end(), hypergraph.p) == p_values.end())
+                {
+                    hypergraph.clear();
+                    continue;
+                }
+                cout << "  Current p = " << hypergraph.p << ", r = " << jay << endl;
+                // 2. 重复实验
+                for (int re = 1; re <= retime; re++)
+                {
+                    PGG_avpi::run(hypergraph, jay, step_num, init_step_num, y, 0,1, params.cin_path,i,re);
+                }
+                // 清空当前超图
+                hypergraph.clear();
+            }
+        }
+        cout << endl;
+        cout << "==============================================" << endl;
+        cout << "All cooperative cluster analysis finished." << endl;
+        cout << "Results saved in: " << cr_root << endl;
+        cout << "==============================================" << endl;
+    }
     else
     {
         cout << endl;
-        cout << "Input error! Please enter 1 or 2 or 3." << endl;
+        cout << "Input error! Please enter 1 or 2 or 3 or 4." << endl;
         return 1;
     }
 }

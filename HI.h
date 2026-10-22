@@ -122,7 +122,10 @@ namespace HypergraphLib {
                     }
                 }
             }
-            for (int i = 0; i < N; i++)if ((int)Groups[i].size() > 100)return 1;
+            if (N == 1000)for (int i = 0; i < N; i++)if ((int)Groups[i].size() > 100)return 1;
+            if (N == 10000)for (int i = 0; i < N; i++)if ((int)Groups[i].size() > 1000)return 1;
+            if (N == 100000)for (int i = 0; i < N; i++)if ((int)Groups[i].size() > 10000)return 1;
+            if (N == 1000000)for (int i = 0; i < N; i++)if ((int)Groups[i].size() > 100000)return 1;
             return false;
         }
         //重连函数：用于随机重连超图结构
